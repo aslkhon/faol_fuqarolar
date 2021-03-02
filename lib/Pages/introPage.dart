@@ -1,0 +1,129 @@
+import 'package:faol_fuqarolar/Widgets/buttons.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../globals.dart' as globals;
+import '../languages.dart';
+import '../main.dart';
+import 'phonePage.dart';
+
+class IntroPage extends StatefulWidget {
+  @override
+  _IntroPageState createState() => _IntroPageState();
+
+  IntroPage();
+}
+
+class _IntroPageState extends State<IntroPage> {
+  final linkStyle = TextStyle(decoration: TextDecoration.underline, fontWeight: FontWeight.bold);
+  var introRussian, introUzbek;
+
+  String getIntro(String lang) {
+    if (lang == 'uz') {
+      if (globals.currentLang == Languages.uzbek) {
+        return globals.currentLang['IntroWelcome'];
+      } else {
+        return '';
+      }
+    } else {
+      if (globals.currentLang == Languages.russian) {
+        return globals.currentLang['IntroWelcome'];
+      } else {
+        return '';
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        resizeToAvoidBottomInset: false,
+        resizeToAvoidBottomPadding: false,
+        backgroundColor: AppColors.primary,
+        body: Column(
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width * 0.875,
+              margin: EdgeInsets.only(top: 82.0),
+              alignment: Alignment.bottomRight,
+              child: IconButton(
+                color: AppColors.white,
+                icon: FaIcon(FontAwesomeIcons.globe),
+                iconSize: 32.0,
+                onPressed: () {
+                  setState(() {
+                    globals.changeLang();
+                  });
+                },
+              ),
+            ),
+            Container(
+                height: MediaQuery.of(context).size.height - 291,
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
+                      child: Text(getIntro('ru'), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0, color: AppColors.white)),
+                    ),
+                    SvgPicture.asset('assets/images/logo_white.svg'),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
+                      child: Text(getIntro('uz'), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0, color: AppColors.white)),
+                    )
+                  ],
+                )
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                    style: TextStyle(color: AppColors.white, fontSize: 14.0, fontFamily: 'Open Sans'),
+                    children: [
+                      TextSpan(text: globals.currentLang['IntroFirstLine']),
+                      TextSpan(
+                          text: globals.currentLang['IntroPrivacy'],
+                          style: linkStyle,
+                          recognizer: TapGestureRecognizer()..onTap =  () async{
+                            var url = "https://faol-fuqarolar.uz/privacy.html";
+                            if (await canLaunch(url)) {
+                              await launch(url);
+                            } else {
+                              throw 'Could not launch $url';
+                            }
+                          }
+                      ),
+                      TextSpan(text: globals.currentLang['IntroAnd']),
+                      TextSpan(
+                          text: globals.currentLang['IntroTerms'],
+                          style: linkStyle,
+                          recognizer: TapGestureRecognizer()..onTap =  () async{
+                            var url = "https://faol-fuqarolar.uz/terms.html";
+                            if (await canLaunch(url)) {
+                              await launch(url);
+                            } else {
+                              throw 'Could not launch $url';
+                            }
+                          }
+                      ),
+                      TextSpan(text: globals.currentLang['IntroLastLine']),
+                    ]
+                ),
+              ),
+            ),
+            ApplicationButton(
+              onPressed: () => {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => PhonePage(step: MobileStep.number))).then((value) => setState(() {}))
+              },
+              text: globals.currentLang['IntroButton'],
+              buttonStyle: AppButtonStyle.ButtonWhite,
+            ),
+          ],
+        )
+    );
+  }
+}
