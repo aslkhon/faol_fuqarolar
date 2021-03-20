@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "906023143254",
+    "project_id": "obod-qishloq",
+    "storage_bucket": "obod-qishloq.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:906023143254:android:fbf61b89dccbfb7f6538f7",
+        "android_client_info": {
+          "package_name": "uz.itsolutions.faol_fuqarolar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "906023143254-dafkdms7qukteo6qj7mggqllrh7b26tp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAd-OfLBEBNhyBEwt6hZGAjIYKpX9iEJjg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "906023143254-dafkdms7qukteo6qj7mggqllrh7b26tp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

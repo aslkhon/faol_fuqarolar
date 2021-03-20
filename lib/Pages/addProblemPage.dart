@@ -1,80 +1,159 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:faol_fuqarolar/Providers/auth.dart';
 import 'package:faol_fuqarolar/Widgets/buttons.dart';
+import 'package:faol_fuqarolar/languages.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:full_screen_image/full_screen_image.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:location/location.dart';
-import 'package:photo_view/photo_view.dart';
 import 'package:searchable_dropdown/searchable_dropdown.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../globals.dart' as globals;
-import '../languages.dart';
+import 'package:http/http.dart' as http;
 import '../main.dart';
 import 'mainPage.dart';
 
 class AddProblemPage extends StatefulWidget {
-  final File image;
+  final String imagePath;
   @override
-  _AddProblemPageState createState() => _AddProblemPageState(image);
+  _AddProblemPageState createState() => _AddProblemPageState(imagePath);
 
-  AddProblemPage({this.image});
+  AddProblemPage({this.imagePath});
 }
 
 class _AddProblemPageState extends State<AddProblemPage> {
   final keyboardVisibilityController = KeyboardVisibilityController();
-  final File image;
+  final String imagePath;
+  List data;
+  TextEditingController controller = TextEditingController();
 
-  _AddProblemPageState(this.image) {
-    getLocation();
-  }
+  _AddProblemPageState(this.imagePath);
   var paddingTop = 325.0;
 
-  String _value = 'Tax';
-  final items =  [
-    DropdownMenuItem(
-      child: Text('Tax'),
-      value: 'Tax',
-    ),
-    DropdownMenuItem(
-      child: Text('Building'),
-      value: 'Building',
-    ),
-    DropdownMenuItem(
-      child: Text('Building'),
-      value: 'Buildib',
-    ),
-    DropdownMenuItem(
-      child: Text('Building'),
-      value: 'Buildib',
-    ),
-    DropdownMenuItem(
-      child: Text('Building'),
-      value: 'Buildib',
-    ),
-    DropdownMenuItem(
-      child: Text('Buildin'),
-      value: 'Buildib',
-    )
-  ];
+  String _value;
 
+  List<DropdownMenuItem> items = [];
+
+  Future<void> _send() async {
+    setState(() {
+      isLoading = true;
+    });
+    int _id;
+    data.forEach((element) {
+      if (element[_getLang()] == _value) {
+        _id = element['id'];
+      }
+    });
+    try {
+      await Auth().sentMessage(
+        description: controller.text,
+        lat: latX,
+        lng: longX,
+        categoryId: _id,
+        imagePath: imagePath
+      ).then((value) {
+        if (value == 200) {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => MainPage()));
+          showDialog(
+            context: this.context,
+            builder: (ctx) {
+              return AlertDialog(
+                content: Container(
+                  height: 64.0,
+                  width: 64.0,
+                  child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: FaIcon(FontAwesomeIcons.checkCircle, size: 24.0, color: AppColors.success),
+                  ),
+                ),
+                actions: <Widget>[
+                  MaterialButton(
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                    },
+                    child: Text('Ok'),
+                  )
+                ],
+              );
+            },
+          );
+        }
+      });
+    } catch (error) {
+    }
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future<void> _getData() async {
+    setState(() {
+      isLoading = true;
+    });
+    final SharedPreferences preferences = await SharedPreferences.getInstance();
+    final token = preferences.getString('token');
+    const url = 'https://api.faol-fuqarolar.uz/api/categories';
+    var response = await http.get(
+      url,
+      headers: {
+        'Content-type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    data = json.decode(response.body);
+
+    items.clear();
+    data.forEach((element) {
+      items.add(
+        DropdownMenuItem(
+            child: Text(element[_getLang()]),
+          value: element[_getLang()],
+        )
+      );
+    });
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  String _getLang() {
+    if (globals.currentLang == Languages.russian) return 'name_ru';
+    else return 'name_uz';
+  }
+
+  bool isLoading = false;
+  bool isRejected = false;
+  bool isEmptyLine = false;
+  bool isLoadingData = false;
+
+  double latX, longX;
 
   @override
   void initState() {
-    super.initState();
-
     var keyboardVisibilityController = KeyboardVisibilityController();
-
     // Subscribe
     keyboardVisibilityController.onChange.listen((bool visible) {
       if(visible) paddingTop = 150; else paddingTop = 325;
     });
+
+    _getData();
+    getLocation();
+
+    super.initState();
   }
 
   var locationString = '';
 
-  getLocation() async {
+  void getLocation() async {
+    setState(() {
+      isLoading = true;
+    });
     Location location = new Location();
 
     bool _serviceEnabled;
@@ -97,7 +176,11 @@ class _AddProblemPageState extends State<AddProblemPage> {
       }
     }
 
-    _locationData = await location.getLocation();
+    try {
+      _locationData = await location.getLocation();
+    } catch (error) {
+      print(error);
+    }
 
     Future<List<Address>> _getAddress(double lat, double lang) async {
       final coordinates = new Coordinates(lat, lang);
@@ -108,16 +191,21 @@ class _AddProblemPageState extends State<AddProblemPage> {
 
     _getAddress(_locationData.latitude, _locationData.longitude).then((value) =>
         setState(() {
+          latX = _locationData.latitude; longX = _locationData.longitude;
           locationString = value.first.addressLine;
         })
     );
+    setState(() {
+      isLoading = false;
+    });
   }
+
+  bool isScaled = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      resizeToAvoidBottomPadding: false,
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
@@ -128,10 +216,12 @@ class _AddProblemPageState extends State<AddProblemPage> {
                 tag: 'smallImage',
                 child: ClipRRect(
                   child: Container(
-                    child: PhotoView(
-                      imageProvider: AssetImage(image.path),
-                      customSize: MediaQuery.of(context).size,
-                      backgroundDecoration: BoxDecoration(color: Colors.transparent),
+                    child: imagePath == null
+                        ? Center(child: Text('Ilovani o\'chirib qaytadan kiring'),)
+                        : Image.file(
+                      File(imagePath),
+                      width: MediaQuery.of(context).size.width,
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
@@ -161,6 +251,7 @@ class _AddProblemPageState extends State<AddProblemPage> {
                     onPressed: () {
                       setState(() {
                         globals.changeLang();
+                        _getData();
                       });
                     },
                   ),
@@ -184,92 +275,125 @@ class _AddProblemPageState extends State<AddProblemPage> {
             margin: EdgeInsets.only(top: paddingTop),
             color: AppColors.background,
             height: MediaQuery.of(context).size.height - 325.0,
-            alignment: Alignment.center,
-            child: Column(
-              children: [
-                Container(
-                  width: MediaQuery.of(context).size.width * 0.875,
-                  height: 68.0,
-                  margin: EdgeInsets.only(bottom: 32.0, top: 16.0),
-                  padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
-                  decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(8.0),
-                      boxShadow: [
-                        BoxShadow(
-                            color: AppColors.shadow,
-                            blurRadius: 6,
-                            offset: Offset(0, 3)
-                        )
-                      ]
-                  ),
-                  child: SearchableDropdown.single(
-                    items: items,
-                    value: _value,
-                    hint: globals.currentLang['AddProblemCategory'],
-                    displayClearIcon: false,
-                    underline: Container(),
-                    searchHint: globals.currentLang['AddProblemCategory'],
-                    onChanged: (value) {
-                      setState(() {
-                        _value = value;
-                      });
-                    },
-                    isExpanded: true,
-                  ),
-                ),
-                Container(
-                  width: MediaQuery.of(context).size.width * 0.875,
-                  padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0),
-                  decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(20.0),
-                      boxShadow: [
-                        BoxShadow(
-                            color: AppColors.shadow,
-                            blurRadius: 6,
-                            offset: Offset(0, 3)
-                        )
-                      ],
-                      border: Border.all(color: AppColors.reject)
-                  ),
-                  child: TextField(
-                    cursorColor: AppColors.primary,
-                    decoration: InputDecoration(
-                      hintText: globals.currentLang['AddProblemHint'],
-                      border: InputBorder.none,
-                    ),
-                    maxLines: 6,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 24.0),
-                  child: Container(
+            alignment: Alignment.topCenter,
+            child: SingleChildScrollView(
+              physics: BouncingScrollPhysics(),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Container(
                     width: MediaQuery.of(context).size.width * 0.875,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Flexible(child: FaIcon(FontAwesomeIcons.mapMarkerAlt, color: AppColors.reject,), flex: 1,),
-                        Flexible(
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: Text(locationString),
-                          ),
-                          flex: 5,
-                        )
-                      ],
+                    height: 70.0,
+                    margin: EdgeInsets.only(bottom: 32.0, top: 16.0),
+                    padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
+                    decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(8.0),
+                        border: isEmptyLine ? Border.all(color: AppColors.reject) : Border.all(color: Colors.transparent),
+                        boxShadow: [
+                          BoxShadow(
+                              color: AppColors.shadow,
+                              blurRadius: 6,
+                              offset: Offset(0, 3)
+                          )
+                        ]
+                    ),
+                    child: isLoadingData ? CircularProgressIndicator(
+                      backgroundColor: AppColors.primary,
+                    ) : SearchableDropdown.single(
+                      items: items,
+                      value: _value,
+                      isCaseSensitiveSearch: false,
+                      hint: globals.currentLang['AddProblemCategory'],
+                      displayClearIcon: false,
+                      underline: Container(),
+                      searchHint: globals.currentLang['AddProblemCategory'],
+                      onChanged: (value) {
+                        setState(() {
+                          isEmptyLine = false;
+                          _value = value;
+                        });
+                      },
+                      isExpanded: true,
                     ),
                   ),
-                )
-              ],
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.875,
+                    padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0),
+                    decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(20.0),
+                        boxShadow: [
+                          BoxShadow(
+                              color: AppColors.shadow,
+                              blurRadius: 6,
+                              offset: Offset(0, 3)
+                          )
+                        ],
+                        border: isRejected ?  Border.all(color: AppColors.reject) : Border.all(color: Colors.transparent)
+                    ),
+                    child: TextField(
+                      cursorColor: AppColors.primary,
+                      controller: controller,
+                      decoration: InputDecoration(
+                        hintText: globals.currentLang['AddProblemHint'],
+                        border: InputBorder.none,
+                      ),
+                      onChanged: (_value) {
+                        setState(() {
+                          isRejected = false;
+                        });
+                      },
+                      maxLines: 6,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 24.0, bottom: 108.0),
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.875,
+                      child: GestureDetector(
+                        onTap: getLocation,
+                        child: isLoading ? Center(
+                          child: CircularProgressIndicator(
+                            backgroundColor: AppColors.primary,
+                          ),
+                        ) : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(child: FaIcon(FontAwesomeIcons.mapMarkerAlt, color: AppColors.reject,), flex: 1,),
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: Text(locationString),
+                              ),
+                              flex: 5,
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
           Positioned(
             top: MediaQuery.of(context).size.height - 88.0,
             left: MediaQuery.of(context).size.width * 0.0625,
             child: ApplicationButton(
-              onPressed: () => {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => MainPage())).then((value) => setState(() {}))
+              onPressed: () {
+                if (controller.text.isEmpty) {
+                  setState(() {
+                    isRejected = true;
+                  });
+                }
+                if (_value == null) {
+                  setState(() {
+                    isEmptyLine = true;
+                  });
+                }
+                if (controller.text.isNotEmpty && _value != null && locationString.isNotEmpty)
+                  _send();
               },
               text: globals.currentLang['IntroButton'],
               buttonStyle: AppButtonStyle.ButtonBlue,

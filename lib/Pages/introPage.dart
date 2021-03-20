@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:new_version/new_version.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../globals.dart' as globals;
 import '../languages.dart';
@@ -15,6 +16,8 @@ class IntroPage extends StatefulWidget {
 
   IntroPage();
 }
+
+enum ConfirmAction { CONFIRM, CANCEL }
 
 class _IntroPageState extends State<IntroPage> {
   final linkStyle = TextStyle(decoration: TextDecoration.underline, fontWeight: FontWeight.bold);
@@ -36,11 +39,106 @@ class _IntroPageState extends State<IntroPage> {
     }
   }
 
+  bool _checkVersion = false;
+
+  void _versionCheck() async {
+    setState(() {
+      _checkVersion = true;
+    });
+    final NewVersion newVersion = NewVersion(context: context);
+    VersionStatus versionStatus = await newVersion.getVersionStatus();
+    if (versionStatus != null && versionStatus.canUpdate) {
+      setState(() {
+        _checkVersion = false;
+      });
+      await confirmDialog(
+          context: context,
+          title: globals.currentLang['PopupTitle'],
+          body: Text(
+            globals.currentLang['PopupBody'],
+            style:
+            TextStyle(color: Theme.of(context).textTheme.button.color),
+          ),
+          acceptButton: globals.currentLang['PopupButton'],
+          cancelButton: globals.currentLang['PopupCancel'],)
+          .then((ConfirmAction res) async {
+        if (res == ConfirmAction.CONFIRM &&
+            await canLaunch(versionStatus.appStoreLink)) {
+          await launch(versionStatus.appStoreLink, forceWebView: false);
+        }
+      });
+    }
+    setState(() {
+      _checkVersion = false;
+    });
+  }
+
+  Future<ConfirmAction> confirmDialog(
+      {BuildContext context,
+        String title,
+        Widget body,
+        String acceptButton,
+        String cancelButton}) =>
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) => AlertDialog(
+          title: Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 4,
+            children: <Widget>[
+              Text(
+                title,
+                style:
+                TextStyle(color: Theme.of(context).textTheme.button.color),
+              )
+            ],
+          ),
+          content: Wrap(
+            runSpacing: 10,
+            children: <Widget>[
+              body,
+            ],
+          ),
+          actions: <Widget>[
+            MaterialButton(
+              padding: EdgeInsets.all(6),
+              child: Text(
+                acceptButton,
+                style:
+                TextStyle(color: Theme.of(context).textTheme.button.color),
+              ),
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true)
+                    .pop(ConfirmAction.CONFIRM);
+              },
+            ),
+            MaterialButton(
+              padding: EdgeInsets.all(6),
+              child: Text(
+                cancelButton,
+                style:
+                TextStyle(color: Theme.of(context).textTheme.button.color),
+              ),
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true)
+                    .pop(ConfirmAction.CANCEL);
+              },
+            ),
+          ],
+        ),
+      );
+
+  @override
+  void initState() {
+    _versionCheck();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         resizeToAvoidBottomInset: false,
-        resizeToAvoidBottomPadding: false,
         backgroundColor: AppColors.primary,
         body: Column(
           children: [
@@ -69,7 +167,7 @@ class _IntroPageState extends State<IntroPage> {
                       padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
                       child: Text(getIntro('ru'), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0, color: AppColors.white)),
                     ),
-                    SvgPicture.asset('assets/images/logo_white.svg'),
+                    _checkVersion ? Center(child: CircularProgressIndicator(backgroundColor: AppColors.primary,)) : SvgPicture.asset('assets/images/logo_white.svg'),
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
                       child: Text(getIntro('uz'), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0, color: AppColors.white)),

@@ -119,7 +119,6 @@ class AppPasswordInput extends StatelessWidget {
               child: TextFormField(
                   enabled: enabled,
                   maxLength: 6,
-                  maxLengthEnforced: true,
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18.0,
@@ -131,7 +130,6 @@ class AppPasswordInput extends StatelessWidget {
                   cursorColor: AppColors.primary,
                   controller: controller,
                   onChanged: (value) {
-                    print(value);
                     if (value.length == 6) {
                       onPressed();
                     }

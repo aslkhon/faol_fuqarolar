@@ -26,7 +26,7 @@ class ApplicationButton extends StatelessWidget {
             )
           ]
       ),
-      child: FlatButton(
+      child: MaterialButton(
         child: Text(text, style: TextStyle(
             color: (buttonStyle == AppButtonStyle.ButtonBlue) ? AppColors.white : AppColors.primary,
             fontSize: 18.0,

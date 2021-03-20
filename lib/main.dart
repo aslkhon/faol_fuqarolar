@@ -15,7 +15,9 @@ Injector injector;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // ignore: deprecated_member_use
   DependencyInjection().initialize(Injector.getInjector());
+  // ignore: deprecated_member_use
   injector = Injector.getInjector();
   await AppInitializer().initialise(injector);
 
@@ -28,7 +30,7 @@ Future<void> main() async {
 
   globals.setLang();
 
-  runApp(MyApp());
+  runApp(MyApp(phone));
 }
 
 _setLangFirstTime() async {
@@ -39,7 +41,8 @@ _setLangFirstTime() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp();
+  final String phoneNumber;
+  const MyApp(this.phoneNumber);
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +62,7 @@ class MyApp extends StatelessWidget {
           fontFamily: 'Open Sans',
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: IntroPage()
+        home: phoneNumber == null ? IntroPage() : MainPage(),
     );
   }
 }

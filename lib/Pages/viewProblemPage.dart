@@ -1,10 +1,16 @@
-import 'package:faol_fuqarolar/Models/problem.dart';
+import 'dart:convert';
+
+import 'package:faol_fuqarolar/Providers/request.dart';
+import 'package:faol_fuqarolar/languages.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:full_screen_image/full_screen_image.dart';
+import 'package:intl/intl.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../globals.dart' as globals;
+import 'package:http/http.dart' as http;
 
 import '../main.dart';
 import 'mainPage.dart';
@@ -19,22 +25,22 @@ class ViewProblemPage extends StatefulWidget {
 }
 
 class _ViewProblemPageState extends State<ViewProblemPage> {
-  final problem;
+  RequestItem problem;
   _ViewProblemPageState({this.problem});
 
   FaIcon getIcon() {
     IconData icon;
-    switch (problem.status) {
-      case Status.sent:
+    switch (problem.statusId) {
+      case 1:
         icon = FontAwesomeIcons.paperPlane;
         break;
-      case Status.process:
+      case 2:
         icon = FontAwesomeIcons.spinner;
         break;
-      case Status.success:
+      case 3:
         icon = FontAwesomeIcons.checkCircle;
         break;
-      case Status.reject:
+      case 4:
         icon = FontAwesomeIcons.timesCircle;
         break;
     }
@@ -43,28 +49,70 @@ class _ViewProblemPageState extends State<ViewProblemPage> {
 
   String getText() {
     String text;
-    switch (problem.status) {
-      case Status.sent:
+    switch (problem.statusId) {
+      case 1:
         text = globals.currentLang['ViewStatusSent'];
         break;
-      case Status.process:
-        text = globals.currentLang['ViewStatusProcess'];
+      case 2:
+        text = globals.currentLang['ViewStatusProcess'] + organization;
         break;
-      case Status.success:
+      case 3:
         text = globals.currentLang['ViewStatusSuccess'];
         break;
-      case Status.reject:
+      case 4:
         text = globals.currentLang['ViewStatusReject'];
         break;
     }
     return text;
   }
 
+  bool isLoading = false;
+  String organization = 'default';
+
+  Future<void> _getSolvedImage(int id, int statusId) async {
+    setState(() {
+      isLoading = true;
+    });
+    final _prefs = await SharedPreferences.getInstance();
+    final phoneNumber = _prefs.getString("phone");
+    final _token = _prefs.getString("token");
+    var url =
+        'http://api.faol-fuqarolar.uz/api/requests/$id?lang=uz&phone=$phoneNumber';
+    try {
+      final response = await http.get(url, headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $_token',
+      });
+      String lang = "name";
+      if (globals.currentLang == Languages.uzbek) {
+        lang = "name";
+      } else {
+        lang = "name_ru";
+      }
+      final extractedData = json.decode(response.body);
+      print(extractedData['organization'][lang]);
+      setState(() {
+        organization = extractedData['organization'][lang];
+        isLoading = false;
+      });
+    } catch (error) {
+      throw (error);
+    }
+  }
+
+  @override
+  void initState() {
+    if (problem.statusId == 2) {
+      _getSolvedImage(problem.id, problem.statusId);
+    }
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      resizeToAvoidBottomPadding: false,
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
@@ -76,7 +124,9 @@ class _ViewProblemPageState extends State<ViewProblemPage> {
                 child: ClipRRect(
                   child: Container(
                     child: PhotoView(
-                      imageProvider: problem.image,
+                      imageProvider: NetworkImage(
+                          problem.image.imageUrl,
+                      ),
                       customSize: MediaQuery.of(context).size,
                       backgroundDecoration: BoxDecoration(color: Colors.transparent),
                     ),
@@ -155,7 +205,8 @@ class _ViewProblemPageState extends State<ViewProblemPage> {
                                 padding: const EdgeInsets.only(right: 8.0),
                                 child: FaIcon(FontAwesomeIcons.clock, size: 12.0),
                               ),
-                              Text(problem.time.getString(globals.currentLang), style: TextStyle(fontWeight: FontWeight.bold))
+                              Text(DateFormat("d MMMM HH:mm").format(DateTime.parse(problem.createdAt)),
+                                  style: TextStyle(fontWeight: FontWeight.bold))
                             ],
                           ),
                         ),
@@ -166,7 +217,7 @@ class _ViewProblemPageState extends State<ViewProblemPage> {
                               color: AppColors.chips,
                               borderRadius: BorderRadius.circular(16.0)
                           ),
-                          child: Text(problem.category, style: TextStyle(fontWeight: FontWeight.bold)),
+                          child: Text(MainPage.getCategory(problem), style: TextStyle(fontWeight: FontWeight.bold)),
                         )
                       ],
                     ),
@@ -177,7 +228,7 @@ class _ViewProblemPageState extends State<ViewProblemPage> {
                         Padding(
                           padding: EdgeInsets.symmetric(vertical: 36.0, horizontal: (MediaQuery.of(context).size.width * 0.0625)),
                           child: Text(
-                            problem.text,
+                            problem.description,
                             style: TextStyle(
                                 color: AppColors.black,
                                 fontSize: 16.0
@@ -197,7 +248,7 @@ class _ViewProblemPageState extends State<ViewProblemPage> {
                   Container(
                     height: 80.0,
                     padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.0625),
-                    color: MainPage.getColor(problem.status),
+                    color: MainPage.getColor(problem.statusId),
                     child: Row(
                       children: [
                         Container(
@@ -207,22 +258,24 @@ class _ViewProblemPageState extends State<ViewProblemPage> {
                         Container(
                             margin: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.025),
                             width: MediaQuery.of(context).size.width * 0.75,
-                            child: Text(getText(), style: TextStyle(
-                                color: AppColors.white
-                            ),)
+                            child: isLoading ? Center(child: CircularProgressIndicator(backgroundColor: AppColors.white,)) : Text(getText(), style: TextStyle(
+                                color: AppColors.white),),
                         )
                       ],
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.symmetric(vertical: 24.0),
+                    padding: EdgeInsets.only(top: 24.0, bottom: 24.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        FaIcon(FontAwesomeIcons.mapMarkerAlt, color: AppColors.reject),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Text(problem.location),
+                        Flexible(child: FaIcon(FontAwesomeIcons.mapMarkerAlt, color: AppColors.reject,), flex: 1,),
+                        Flexible(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Text(problem.addressMap),
+                          ),
+                          flex: 5,
                         )
                       ],
                     ),

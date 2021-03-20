@@ -39,10 +39,10 @@ class RequestItem {
         statusId: categoryItemJson['statusId'],
         isClosed: categoryItemJson['isClosed'],
         createdAt: categoryItemJson['createdAt'],
-        citizen: categoryItemJson['citizen'],
-        category: categoryItemJson['category'],
-        status: categoryItemJson['status'],
-        image: categoryItemJson['image'],
+        citizen: Citizen.fromJson(categoryItemJson['citizen']),
+        category: Request.fromJson(categoryItemJson['category']),
+        status: RequestStatus.fromJson(categoryItemJson['status']),
+        image: Img.fromJson(categoryItemJson['image']),
       );
 }
 

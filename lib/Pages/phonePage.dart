@@ -35,21 +35,25 @@ class _PhonePageState extends State<PhonePage> {
   MobileStep step;
   Timer _timer;
 
+  // ignore: missing_return
   Future<bool> backward () {
     switch(step) {
       case MobileStep.code:
         setState(() {
           step = MobileStep.number;
+          _timer.cancel();
         });
         break;
       case MobileStep.timeout:
         setState(() {
           step = MobileStep.number;
+          _timer.cancel();
         });
         break;
       case MobileStep.wrong:
         setState(() {
           step = MobileStep.number;
+          _timer.cancel();
         });
         break;
       case MobileStep.number:
@@ -136,9 +140,7 @@ class _PhonePageState extends State<PhonePage> {
       codeController.clear();
       startTimer();
     } on HttpException {
-      print('Http Error');
     } catch (error) {
-      print(error);
     }
     setState(() {
       isLoading = false;
@@ -151,34 +153,29 @@ class _PhonePageState extends State<PhonePage> {
     });
     try {
       final SharedPreferences preferences = await SharedPreferences.getInstance();
-      int value = await Auth().verifyCode(int.parse(code), phoneNumber);
+      int value = await Auth().verifyCode(int.parse(code), '998$phoneNumber');
       if (value == 200) {
-        preferences.setString('phone', phoneNumber);
+        preferences.setString('phone', '998$phoneNumber');
         final SocketService socketService = injector.get<SocketService>();
         socketService.createSocketConnection();
         Navigator.push(context, MaterialPageRoute(builder: (context) => MainPage()));
       } else if (value == 202) {
-        preferences.setString('phone', phoneNumber);
-        Navigator.push(context, MaterialPageRoute(builder: (context) => RegistrationPage()));
+        preferences.setString('phone', '998$phoneNumber');
+        Navigator.push(context, MaterialPageRoute(builder: (context) => RegistrationPage())).then((value) {
+          setState(() {
+            step = MobileStep.number;
+            _timer.cancel();
+          });
+        });
       }
-      //     .
-      // then(
-      //   (value) {
-      //
-      //   }
-      // );
     } on HttpException {
-      print('Problem');
-      // counter = 0;
-      // _timer.cancel();
-      // step = MobileStep.wrong;
+      counter = 0;
+      _timer.cancel();
+      step = MobileStep.wrong;
     } catch (error) {
-
-      print('Problem');
-      print(error);
-      // counter = 0;
-      // _timer.cancel();
-      // step = MobileStep.wrong;
+      counter = 0;
+      _timer.cancel();
+      step = MobileStep.wrong;
     }
     setState(() {
       isLoading = false;
@@ -228,7 +225,6 @@ class _PhonePageState extends State<PhonePage> {
           enabled: true,
           controller: codeController,
           onPressed: () {
-            print(codeController.text);
             send(codeController.text);
           },
         );

@@ -19,6 +19,7 @@ class Languages {
     'RegistrationLabel': 'Регистрация',
     'HintName': 'Имя',
     'HintSurname': 'Фамилия',
+    'WifiAlert': 'Проверьте соединение с сетью',
 
     'StatusOne': 'Все проблемы',
     'StatusTwo': 'Отправленные',
@@ -40,6 +41,15 @@ class Languages {
     'ViewStatusProcess': 'Проблема в процессе решения\nОтветственная организация:\n',
     'ViewStatusSuccess': 'Проблема решена. Спасибо за Вашу помощь',
     'ViewStatusReject': 'По определенным причинам Ваше предложение отклонено. По вопросам +998 72 342-10-18',
+
+    'NoMuammo': 'Проблем нет',
+
+    "PopupTitle" : "Доступно обновление",
+    "PopupBody" : "Доступна улучшенная версия, пожалуйста, обновите приложение.",
+    "PopupButton" : "Обновить сейчас",
+    "PopupCancel" : "Позже",
+
+    "exit": "Нажмите 2 раза, чтобы выйти"
   };
 
   static const uzbek = {
@@ -62,6 +72,7 @@ class Languages {
     'RegistrationLabel': 'Ro\'yxatdan o\'tish',
     'HintName': 'Ism',
     'HintSurname': 'Familiya',
+    'WifiAlert': 'Internet ulanishingizni tekshiring',
 
     'StatusOne': 'Barcha muammolar',
     'StatusTwo': 'Yuborilgan',
@@ -83,5 +94,14 @@ class Languages {
     'ViewStatusProcess': 'Muammo xal etish jarayonida.\nMa\'sul tashkilot:',
     'ViewStatusSuccess': 'Muammo muvaffaqiyatli xal etildi.\nMa\'lumotingiz uchun raxmat',
     'ViewStatusReject': 'Ma\'lumotingiz o\'rganib chiqildi va\nayrim sabablarga ko\'ra rad etildi.\nSavollar bo\'yicha +998 72 342-10-18',
+
+    'NoMuammo': 'Muammolar yo\'q',
+
+    "PopupTitle" : "Yangi o'zgarishlar mavjud",
+    "PopupBody" : "Ilovaning yangi versiyasi mavjud, iltimos uni hoziroq yangilang.",
+    "PopupButton" : "Hoziroq yangilang",
+    "PopupCancel" : "Keyinroq",
+
+    "exit": "Chiqish uchun 2 marta bosing"
   };
 }

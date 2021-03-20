@@ -8,7 +8,7 @@ class SocketService {
 
   createSocketConnection() async {
     socket = IO.io(
-      'https://server.faol-fuqarolar.uz/',
+      'https://api.faol-fuqarolar.uz/',
       <String, dynamic>{
         'transports': ['websocket']
       });
@@ -22,7 +22,7 @@ class SocketService {
   Future<String> signIn() async {
     final SharedPreferences preferences = await SharedPreferences.getInstance();
     final phoneNumber = preferences.getString('phone');
-    const url = 'https://server.faol-fuqarolar.uz/api/auth/loginphone';
+    const url = 'https://api.faol-fuqarolar.uz/api/auth/loginphone';
     try {
       final response = await http.post(
         url,

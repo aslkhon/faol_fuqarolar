@@ -1,6 +1,8 @@
+import 'package:faol_fuqarolar/Providers/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../globals.dart' as globals;
 
@@ -16,18 +18,31 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
-  final name = 'Asl';
-  final surname = 'KHon';
-  final phoneNumber = '+998998282404';
-
+  var name = "";
+  var surname = "";
+  var phoneNumber = "";
 
   _AccountPageState();
+
+  getData() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    name = preferences.getString('name');
+    surname = preferences.getString('surname');
+    phoneNumber = '+' + preferences.getString('phone');
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    getData();
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         resizeToAvoidBottomInset: false,
-        resizeToAvoidBottomPadding: false,
         backgroundColor: AppColors.background,
         body: Column(
           children: [
@@ -61,12 +76,14 @@ class _AccountPageState extends State<AccountPage> {
             Container(
                 height: MediaQuery.of(context).size.height - 218,
                 alignment: Alignment.center,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 64.0),
+                child: SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
                   child: Column(
-                    // mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SvgPicture.asset('assets/images/logo.svg'),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 32.0),
+                        child: SvgPicture.asset('assets/images/logo.svg'),
+                      ),
                       Padding(
                         padding: const EdgeInsets.only(top: 32.0, bottom: 4.0),
                         child: Text(
@@ -240,8 +257,9 @@ class _AccountPageState extends State<AccountPage> {
                 )
             ),
             ApplicationButton(
-              onPressed: () => {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => IntroPage())).then((value) => setState(() {}))
+              onPressed: () {
+                Auth().logOut();
+                Navigator.push(context, MaterialPageRoute(builder: (context) => IntroPage()));
               },
               text: globals.currentLang['AccountButton'],
               buttonStyle: AppButtonStyle.ButtonWhite,
