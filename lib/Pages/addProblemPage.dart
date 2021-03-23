@@ -63,13 +63,20 @@ class _AddProblemPageState extends State<AddProblemPage> {
             context: this.context,
             builder: (ctx) {
               return AlertDialog(
-                content: Container(
-                  height: 64.0,
-                  width: 64.0,
-                  child: FittedBox(
-                      fit: BoxFit.contain,
-                      child: FaIcon(FontAwesomeIcons.checkCircle, size: 24.0, color: AppColors.success),
-                  ),
+                content: Column(
+                  children: [
+                    Container(
+                      height: 64.0,
+                      width: 64.0,
+                      child: FittedBox(
+                          fit: BoxFit.contain,
+                          child: FaIcon(FontAwesomeIcons.checkCircle, size: 24.0, color: AppColors.success),
+                      ),
+                    ),
+                    Center(
+                      child: Text(globals.currentLang['Confirm']),
+                    )
+                  ],
                 ),
                 actions: <Widget>[
                   MaterialButton(

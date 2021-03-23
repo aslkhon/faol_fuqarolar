@@ -144,6 +144,7 @@ class _MainPageState extends State<MainPage> {
     final SharedPreferences preferences = await SharedPreferences.getInstance();
     final phoneNumber = preferences.getString('phone');
     final token = preferences.getString('token');
+    print(token);
     if (phoneNumber == null) {
       Navigator.push(context, MaterialPageRoute(builder: (context) => IntroPage()));
     }
@@ -327,39 +328,39 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        resizeToAvoidBottomInset: false,
-        backgroundColor: AppColors.background,
-        body: WillPopScope(
-          onWillPop: () {
-            DateTime now = DateTime.now();
-            if (currentBackPressTime == null ||
-                now.difference(currentBackPressTime) > Duration(seconds: 2)) {
-              FlutterToast(context).showToast(
-                child: Container(
-                  padding: EdgeInsets.all(10.0),
-                  decoration: BoxDecoration(
-                    color: Colors.black45,
-                    borderRadius: BorderRadius.horizontal(
-                      left: const Radius.circular(10.0),
-                      right: const Radius.circular(10.0),
-                    ),
-                  ),
-                  child: Text(
-                    globals.currentLang['exit'],
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
+    return WillPopScope(
+        onWillPop: () {
+          DateTime now = DateTime.now();
+          if (currentBackPressTime == null ||
+              now.difference(currentBackPressTime) > Duration(seconds: 2)) {
+            FlutterToast(context).showToast(
+              child: Container(
+                padding: EdgeInsets.all(10.0),
+                decoration: BoxDecoration(
+                  color: Colors.black45,
+                  borderRadius: BorderRadius.horizontal(
+                    left: const Radius.circular(10.0),
+                    right: const Radius.circular(10.0),
                   ),
                 ),
-                toastDuration: Duration(seconds: 2),
-              );
-              currentBackPressTime = now;
-              return Future.value(false);
-            }
-            return Future.value(true);
-          },
-          child: Column(
+                child: Text(
+                  globals.currentLang['Exit'],
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              toastDuration: Duration(seconds: 2),
+            );
+            currentBackPressTime = now;
+            return Future.value(false);
+          }
+          return Future.value(true);
+        },
+      child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          backgroundColor: AppColors.background,
+          body: Column(
             children: [
               Container(
                 width: MediaQuery.of(context).size.width * 0.875,
@@ -507,6 +508,7 @@ class _MainPageState extends State<MainPage> {
                                         width: MediaQuery.of(context).size.width * 0.75,
                                         child: Text(
                                           problem.description,
+                                          maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold,
@@ -569,37 +571,37 @@ class _MainPageState extends State<MainPage> {
               ),
             ],
           ),
-        ),
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Container(
-            width: 64.0,
-            height: 64.0,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(32.0),
-                boxShadow: [
-                  BoxShadow(
-                      color: AppColors.shadow,
-                      blurRadius: 6,
-                      offset: Offset(0, 3)
-                  )
-                ]
-            ),
-            child: MaterialButton(
-              color: AppColors.primary,
-              child: _checkVersion ? Center(child: CircularProgressIndicator(backgroundColor: AppColors.primary,),) : FaIcon(
-                FontAwesomeIcons.camera,
-                color: AppColors.white,
+          floatingActionButton: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Container(
+              width: 64.0,
+              height: 64.0,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(32.0),
+                  boxShadow: [
+                    BoxShadow(
+                        color: AppColors.shadow,
+                        blurRadius: 6,
+                        offset: Offset(0, 3)
+                    )
+                  ]
               ),
-              onPressed: () {
-                getImage();
-              },
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(32.0)
+              child: MaterialButton(
+                color: AppColors.primary,
+                child: _checkVersion ? Center(child: CircularProgressIndicator(backgroundColor: AppColors.primary,),) : FaIcon(
+                  FontAwesomeIcons.camera,
+                  color: AppColors.white,
+                ),
+                onPressed: () {
+                  getImage();
+                },
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(32.0)
+                ),
               ),
             ),
-          ),
-        )
+          )
+      ),
     );
   }
 }

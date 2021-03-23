@@ -49,7 +49,8 @@ class Languages {
     "PopupButton" : "Обновить сейчас",
     "PopupCancel" : "Позже",
 
-    "exit": "Нажмите 2 раза, чтобы выйти"
+    "Exit": "Нажмите 2 раза, чтобы выйти",
+    "Confirm": "Ваше сообщение отправлено"
   };
 
   static const uzbek = {
@@ -102,6 +103,7 @@ class Languages {
     "PopupButton" : "Hoziroq yangilang",
     "PopupCancel" : "Keyinroq",
 
-    "exit": "Chiqish uchun 2 marta bosing"
+    "Exit": "Chiqish uchun 2 marta bosing",
+    "Confirm": "Ma\'lumotingiz yuborildi"
   };
 }

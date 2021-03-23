@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:faol_fuqarolar/Providers/request.dart';
 import 'package:faol_fuqarolar/languages.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +55,7 @@ class _ViewProblemPageState extends State<ViewProblemPage> {
         text = globals.currentLang['ViewStatusSent'];
         break;
       case 2:
-        text = globals.currentLang['ViewStatusProcess'] + organization;
+        text = globals.currentLang['ViewStatusProcess'] + ' ' + organization;
         break;
       case 3:
         text = globals.currentLang['ViewStatusSuccess'];
@@ -68,10 +69,15 @@ class _ViewProblemPageState extends State<ViewProblemPage> {
 
   bool isLoading = false;
   String organization = 'default';
+  String solvedImage;
+  bool solvedLoading = false;
 
   Future<void> _getSolvedImage(int id, int statusId) async {
     setState(() {
-      isLoading = true;
+      if (statusId == 2)
+        isLoading = true;
+      else
+        solvedLoading = true;
     });
     final _prefs = await SharedPreferences.getInstance();
     final phoneNumber = _prefs.getString("phone");
@@ -93,8 +99,13 @@ class _ViewProblemPageState extends State<ViewProblemPage> {
       final extractedData = json.decode(response.body);
       print(extractedData['organization'][lang]);
       setState(() {
-        organization = extractedData['organization'][lang];
-        isLoading = false;
+        if (statusId == 2) {
+          organization = extractedData['organization'][lang];
+          isLoading = false;
+        } else {
+          solvedImage = extractedData['comments'][extractedData['comments'].length - 1]['image']['imageUrl'];
+          solvedLoading = false;
+        }
       });
     } catch (error) {
       throw (error);
@@ -103,7 +114,7 @@ class _ViewProblemPageState extends State<ViewProblemPage> {
 
   @override
   void initState() {
-    if (problem.statusId == 2) {
+    if (problem.statusId == 2 || problem.statusId == 3) {
       _getSolvedImage(problem.id, problem.statusId);
     }
     super.initState();
@@ -118,14 +129,52 @@ class _ViewProblemPageState extends State<ViewProblemPage> {
         children: [
           Container(
             height: 325.0,
-            child: FullScreenWidget(
+            child: problem.statusId == 3 ? FullScreenWidget(
               child: Hero(
                 tag: 'smallImage',
                 child: ClipRRect(
                   child: Container(
+                    child: CarouselSlider(
+                      options: CarouselOptions(
+                        height: 325.0,
+                        viewportFraction: 1.0,
+                        autoPlay: true,
+                        autoPlayInterval: Duration(seconds: 3),
+                        autoPlayAnimationDuration: Duration(milliseconds: 800),
+                        autoPlayCurve: Curves.fastOutSlowIn,
+                      ),
+                      items: [
+                        PhotoView(
+                          imageProvider: NetworkImage(
+                            problem.image.imageUrl,
+                          ),
+                          customSize: MediaQuery.of(context).size,
+                          backgroundDecoration: BoxDecoration(color: Colors.transparent),
+                        ),
+                         solvedLoading ? Center(
+                          child: CircularProgressIndicator(
+                            backgroundColor: AppColors.primary,
+                          ),
+                        ) : PhotoView(
+                          imageProvider: NetworkImage(
+                            solvedImage,
+                          ),
+                          customSize: MediaQuery.of(context).size,
+                          backgroundDecoration: BoxDecoration(color: Colors.transparent),
+                        )
+                      ]
+                    ),
+                  ),
+                ),
+              ),
+            ) : FullScreenWidget(
+              child: Hero(
+                tag: 'newImage',
+                child: ClipRRect(
+                  child: Container(
                     child: PhotoView(
                       imageProvider: NetworkImage(
-                          problem.image.imageUrl,
+                        problem.image.imageUrl,
                       ),
                       customSize: MediaQuery.of(context).size,
                       backgroundDecoration: BoxDecoration(color: Colors.transparent),
@@ -133,7 +182,7 @@ class _ViewProblemPageState extends State<ViewProblemPage> {
                   ),
                 ),
               ),
-            ),
+            )
           ),
           Positioned(
             top: 82.0,
