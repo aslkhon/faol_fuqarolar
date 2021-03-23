@@ -27,7 +27,6 @@ class AddProblemPage extends StatefulWidget {
 }
 
 class _AddProblemPageState extends State<AddProblemPage> {
-  final keyboardVisibilityController = KeyboardVisibilityController();
   final String imagePath;
   List data;
   TextEditingController controller = TextEditingController();
@@ -63,20 +62,27 @@ class _AddProblemPageState extends State<AddProblemPage> {
             context: this.context,
             builder: (ctx) {
               return AlertDialog(
-                content: Column(
-                  children: [
-                    Container(
-                      height: 64.0,
-                      width: 64.0,
-                      child: FittedBox(
-                          fit: BoxFit.contain,
-                          child: FaIcon(FontAwesomeIcons.checkCircle, size: 24.0, color: AppColors.success),
+                content: Container(
+                  height: 180.0,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        height: 64.0,
+                        width: 64.0,
+                        child: FittedBox(
+                            fit: BoxFit.contain,
+                            child: FaIcon(FontAwesomeIcons.checkCircle, size: 24.0, color: AppColors.success),
+                        ),
                       ),
-                    ),
-                    Center(
-                      child: Text(globals.currentLang['Confirm']),
-                    )
-                  ],
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 16.0),
+                          child: Text(globals.currentLang['Confirm'], textAlign: TextAlign.center,),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
                 actions: <Widget>[
                   MaterialButton(
