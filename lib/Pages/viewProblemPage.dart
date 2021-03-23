@@ -131,7 +131,7 @@ class _ViewProblemPageState extends State<ViewProblemPage> {
             height: 325.0,
             child: problem.statusId == 3 ? FullScreenWidget(
               child: Hero(
-                tag: 'smallImage',
+                tag: 'customTag',
                 child: ClipRRect(
                   child: Container(
                     child: CarouselSlider(
@@ -155,12 +155,37 @@ class _ViewProblemPageState extends State<ViewProblemPage> {
                           child: CircularProgressIndicator(
                             backgroundColor: AppColors.primary,
                           ),
-                        ) : PhotoView(
-                          imageProvider: NetworkImage(
-                            solvedImage,
-                          ),
-                          customSize: MediaQuery.of(context).size,
-                          backgroundDecoration: BoxDecoration(color: Colors.transparent),
+                        ) : Stack(
+                          children: [
+                            PhotoView(
+                              imageProvider: NetworkImage(
+                                solvedImage,
+                              ),
+                              customSize: MediaQuery.of(context).size,
+                              backgroundDecoration: BoxDecoration(color: Colors.transparent),
+                            ),
+                            Positioned(
+                              top: 270.0,
+                              child: Container(
+                                padding: const EdgeInsets.only(left: 24.0),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                  child: Text(
+                                    globals.currentLang['Result'],
+                                    style: TextStyle(
+                                      fontSize: 18.0,
+                                      fontWeight: FontWeight.bold
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.background,
+                                  borderRadius: BorderRadius.circular(16.0)
+                                ),
+                                ),
+                              ),
+                            )
+                          ],
                         )
                       ]
                     ),
