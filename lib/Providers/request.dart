@@ -11,6 +11,7 @@ class RequestItem {
   final String createdAt;
   final Citizen citizen;
   final Request category;
+  final Request mahalla;
   final RequestStatus status;
   final Img image;
 
@@ -24,6 +25,7 @@ class RequestItem {
     @required this.isClosed,
     @required this.createdAt,
     @required this.citizen,
+    @required this.mahalla,
     @required this.category,
     @required this.status,
     @required this.image
@@ -41,6 +43,13 @@ class RequestItem {
         createdAt: categoryItemJson['createdAt'],
         citizen: Citizen.fromJson(categoryItemJson['citizen']),
         category: Request.fromJson(categoryItemJson['category']),
+        mahalla: Request.fromJson(categoryItemJson['mahalla']),
+        // mahalla: Request(
+        //   id: 1,
+        //   nameUz: "Uzbek",
+        //   nameRu: "Russian",
+        //   nameEn: "English"
+        // ),
         status: RequestStatus.fromJson(categoryItemJson['status']),
         image: Img.fromJson(categoryItemJson['image']),
       );

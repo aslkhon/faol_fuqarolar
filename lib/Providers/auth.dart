@@ -162,7 +162,7 @@ class Auth with ChangeNotifier {
     }
   }
 
-  Future<int> sentMessage({String description, int categoryId, double lat,
+  Future<int> sentMessage({String description, int categoryId, int mahallaId, double lat,
       double lng, String imagePath}) async {
     final _prefs = await SharedPreferences.getInstance();
     final phoneNumber = _prefs.getString("phone");
@@ -181,6 +181,7 @@ class Auth with ChangeNotifier {
             "lng": lng,
             "imageId": imageResponse.data['id'],
             "categoryId": categoryId,
+            "mahallaId": mahallaId,
             "description": description
           }),
           headers: {
@@ -189,6 +190,7 @@ class Auth with ChangeNotifier {
             'Authorization': 'Bearer $_token',
           },
         );
+        print(response.statusCode);
         if (response.statusCode != 202 && response.statusCode != 200) {
           throw HttpException;
         }

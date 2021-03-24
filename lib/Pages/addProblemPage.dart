@@ -29,14 +29,17 @@ class AddProblemPage extends StatefulWidget {
 class _AddProblemPageState extends State<AddProblemPage> {
   final String imagePath;
   List data;
+  List mahalla_id;
   TextEditingController controller = TextEditingController();
 
   _AddProblemPageState(this.imagePath);
   var paddingTop = 325.0;
 
   String _value;
+  String _mahalla;
 
   List<DropdownMenuItem> items = [];
+  List<DropdownMenuItem> mahallas = [];
 
   Future<void> _send() async {
     setState(() {
@@ -48,14 +51,24 @@ class _AddProblemPageState extends State<AddProblemPage> {
         _id = element['id'];
       }
     });
+    int _mahallaId;
+    mahalla_id.forEach((element) {
+      if (element[_getLang()] == _mahalla) {
+        _mahallaId = element['id'];
+      }
+    });
+    print(mahalla_id);
+    print(' ${_mahallaId}');
     try {
       await Auth().sentMessage(
         description: controller.text,
         lat: latX,
         lng: longX,
         categoryId: _id,
+        mahallaId: _mahallaId,
         imagePath: imagePath
       ).then((value) {
+        print(value);
         if (value == 200) {
           Navigator.push(context, MaterialPageRoute(builder: (context) => MainPage()));
           showDialog(
@@ -110,7 +123,7 @@ class _AddProblemPageState extends State<AddProblemPage> {
     });
     final SharedPreferences preferences = await SharedPreferences.getInstance();
     final token = preferences.getString('token');
-    const url = 'https://api.faol-fuqarolar.uz/api/categories';
+    var url = 'https://api.faol-fuqarolar.uz/api/categories';
     var response = await http.get(
       url,
       headers: {
@@ -128,6 +141,27 @@ class _AddProblemPageState extends State<AddProblemPage> {
             child: Text(element[_getLang()]),
           value: element[_getLang()],
         )
+      );
+    });
+
+    url = 'https://api.faol-fuqarolar.uz/api/mahallas';
+    response = await http.get(
+      url,
+      headers: {
+        'Content-type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    mahalla_id = json.decode(response.body);
+
+    mahallas.clear();
+    mahalla_id.forEach((element) {
+      mahallas.add(
+          DropdownMenuItem(
+            child: Text(element[_getLang()]),
+            value: element[_getLang()],
+          )
       );
     });
     setState(() {
@@ -296,7 +330,7 @@ class _AddProblemPageState extends State<AddProblemPage> {
                 children: [
                   Container(
                     width: MediaQuery.of(context).size.width * 0.875,
-                    height: 70.0,
+                    height: 138.0,
                     margin: EdgeInsets.only(bottom: 32.0, top: 16.0),
                     padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 16.0),
                     decoration: BoxDecoration(
@@ -313,21 +347,40 @@ class _AddProblemPageState extends State<AddProblemPage> {
                     ),
                     child: isLoadingData ? CircularProgressIndicator(
                       backgroundColor: AppColors.primary,
-                    ) : SearchableDropdown.single(
-                      items: items,
-                      value: _value,
-                      isCaseSensitiveSearch: false,
-                      hint: globals.currentLang['AddProblemCategory'],
-                      displayClearIcon: false,
-                      underline: Container(),
-                      searchHint: globals.currentLang['AddProblemCategory'],
-                      onChanged: (value) {
-                        setState(() {
-                          isEmptyLine = false;
-                          _value = value;
-                        });
-                      },
-                      isExpanded: true,
+                    ) : Column(
+                      children: [
+                        SearchableDropdown.single(
+                          items: items,
+                          value: _value,
+                          isCaseSensitiveSearch: false,
+                          hint: globals.currentLang['AddProblemCategory'],
+                          displayClearIcon: false,
+                          underline: Container(),
+                          searchHint: globals.currentLang['AddProblemCategory'],
+                          onChanged: (value) {
+                            setState(() {
+                              isEmptyLine = false;
+                              _value = value;
+                            });
+                          },
+                          isExpanded: true,
+                        ),
+                        SearchableDropdown.single(
+                          items: mahallas,
+                          value: _mahalla,
+                          isCaseSensitiveSearch: false,
+                          hint: globals.currentLang['AddProblemMahalla'],
+                          displayClearIcon: false,
+                          underline: Container(),
+                          searchHint: globals.currentLang['AddProblemMahalla'],
+                          onChanged: (value) {
+                            setState(() {
+                              _mahalla = value;
+                            });
+                          },
+                          isExpanded: true,
+                        )
+                      ],
                     ),
                   ),
                   Container(
@@ -357,7 +410,7 @@ class _AddProblemPageState extends State<AddProblemPage> {
                           isRejected = false;
                         });
                       },
-                      maxLines: 6,
+                      maxLines: 3,
                     ),
                   ),
                   Padding(

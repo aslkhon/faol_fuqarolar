@@ -54,6 +54,17 @@ class MainPage extends StatefulWidget {
       return problem.category.nameUz;
   }
 
+  static getMahalla(RequestItem problem) {
+    if (problem.mahalla == null) {
+      return " ";
+    } else {
+      if (globals.currentLang == Languages.russian)
+        return problem.mahalla.nameRu;
+      else
+        return problem.mahalla.nameUz;
+    }
+  }
+
   MainPage();
 }
 
@@ -171,8 +182,12 @@ class _MainPageState extends State<MainPage> {
             print('null');
             return null;
           }
+          print('Debug');
           problems = List<RequestItem>.from(
-              extractedData.map((i) => RequestItem.fromJson(i)));
+              extractedData.map((i) => RequestItem.fromJson(i))
+          );
+          print('Debug');
+          print('Text' + problems.length.toString());
           if (mounted) {
             setState(() {
               isLoading = false;
@@ -184,9 +199,6 @@ class _MainPageState extends State<MainPage> {
     } catch (error) {
       print(error);
     }
-    print('\n\n');
-    print(problems[1].createdAt);
-    print('\n\n');
   }
 
   ListStatus _value = ListStatus.all;
@@ -519,7 +531,7 @@ class _MainPageState extends State<MainPage> {
                                       Container(
                                         width: MediaQuery.of(context).size.width * 0.75,
                                         child: Text(
-                                          problem.addressMap,
+                                          MainPage.getMahalla(problem),
                                           overflow: TextOverflow.ellipsis,
                                           style: TextStyle(
                                               fontSize: 12.0

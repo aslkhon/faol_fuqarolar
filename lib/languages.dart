@@ -32,6 +32,7 @@ class Languages {
     'AccountPrivacy': 'Политика конфиденциальности',
     'AccountTerms': 'Условия использования',
     'AddProblemCategory': 'Выберите тип проблемы',
+    'AddProblemMahalla': 'Выберите свою махаллю',
     'AddProblemHint': 'Опишите проблему',
     'ViewStatusSent':
         'Сведения успешно отправлены в систему и в скором времени будут изучены нашими операторами',
@@ -83,6 +84,7 @@ class Languages {
     'AccountPrivacy': 'Maxfiylik siyosati',
     'AccountTerms': 'Foydalanish shartlari',
     'AddProblemCategory': 'Muammo turini tanlang',
+    'AddProblemMahalla': 'Mahallangizni tanlang',
     'AddProblemHint': 'Muammoga izoh bering',
     'ViewStatusSent':
         'Ma\'lumotingiz muvaffaqiyatli tizimga yuborildi va tez orada o\'rganib chiqiladi',
