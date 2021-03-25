@@ -59,7 +59,7 @@ class Auth with ChangeNotifier {
     final _token = _prefs.getString('token');
     final FirebaseMessaging _fbm = FirebaseMessaging();
     String token = await _fbm.getToken();
-    const url = 'https://api.obodpskent.uz/api/tokens';
+    const url = 'https://api.faol-fuqarolar.uz/api/tokens';
     try {
       await http.post(
           url,

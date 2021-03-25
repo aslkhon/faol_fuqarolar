@@ -1,12 +1,17 @@
-import 'package:faol_fuqarolar/Notifications/appInitializer.dart';
-import 'package:faol_fuqarolar/Notifications/dependencyInjection.dart';
-import 'package:faol_fuqarolar/Notifications/serverSocket.dart';
-import 'package:faol_fuqarolar/Pages/mainPage.dart';
+import 'package:faol_fuqarolar/Notifications/notification.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_simple_dependency_injection/injector.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'Notifications/appInitializer.dart';
+import 'Notifications/dependencyInjection.dart';
+import 'Notifications/serverSocket.dart';
 import 'Pages/introPage.dart';
+import 'Pages/mainPage.dart';
+import 'Providers/auth.dart';
+import 'Providers/request.dart';
+import 'Notifications/notification.dart' as not;
 import 'globals.dart' as globals;
 import 'languages.dart';
 
@@ -56,13 +61,26 @@ class MyApp extends StatelessWidget {
     } else {
       globals.setLang();
     }
-    return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          fontFamily: 'Open Sans',
-          visualDensity: VisualDensity.adaptivePlatformDensity,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(
+          value: Auth(),
         ),
-        home: phoneNumber == null ? IntroPage() : MainPage(),
+        ChangeNotifierProvider.value(
+          value: Requests(),
+        ),
+        ChangeNotifierProvider.value(
+          value: not.Notification(),
+        )
+      ],
+      child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            fontFamily: 'Open Sans',
+            visualDensity: VisualDensity.adaptivePlatformDensity,
+          ),
+          home: phoneNumber == null ? IntroPage() : MainPage(),
+      ),
     );
   }
 }

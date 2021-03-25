@@ -297,10 +297,21 @@ class _ViewProblemPageState extends State<ViewProblemPage> {
                     ),
                   ),
                   Container(
+                    width: MediaQuery.of(context).size.width * 0.875,
+                    margin: EdgeInsets.symmetric(horizontal: (MediaQuery.of(context).size.width * 0.0625)),
+                    padding: EdgeInsets.only(top: 12.0, bottom: 12.0),
+                    child: Text('Mahalla'),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(color: AppColors.grey, width: 0.5)
+                      )
+                    ),
+                  ),
+                  Container(
                     child: Column(
                       children: [
                         Padding(
-                          padding: EdgeInsets.symmetric(vertical: 36.0, horizontal: (MediaQuery.of(context).size.width * 0.0625)),
+                          padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: (MediaQuery.of(context).size.width * 0.0625)),
                           child: Text(
                             problem.description,
                             style: TextStyle(

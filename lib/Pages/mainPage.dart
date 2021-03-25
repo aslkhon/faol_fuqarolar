@@ -182,12 +182,9 @@ class _MainPageState extends State<MainPage> {
             print('null');
             return null;
           }
-          print('Debug');
           problems = List<RequestItem>.from(
               extractedData.map((i) => RequestItem.fromJson(i))
           );
-          print('Debug');
-          print('Text' + problems.length.toString());
           if (mounted) {
             setState(() {
               isLoading = false;
@@ -280,6 +277,11 @@ class _MainPageState extends State<MainPage> {
     setState(() {
       _checkVersion = false;
     });
+  }
+
+  void hideKeyboard(BuildContext context) {
+    FocusScopeNode currentFocus = FocusScope.of(context);
+    FocusManager.instance.primaryFocus.unfocus();
   }
 
   Future<ConfirmAction> confirmDialog(
@@ -456,6 +458,7 @@ class _MainPageState extends State<MainPage> {
                         setState(() {
                           _value = value;
                           getProblems();
+                          hideKeyboard(context);
                         });
                       }),
                 ),

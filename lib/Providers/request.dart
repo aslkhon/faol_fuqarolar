@@ -44,12 +44,6 @@ class RequestItem {
         citizen: Citizen.fromJson(categoryItemJson['citizen']),
         category: Request.fromJson(categoryItemJson['category']),
         mahalla: Request.fromJson(categoryItemJson['mahalla']),
-        // mahalla: Request(
-        //   id: 1,
-        //   nameUz: "Uzbek",
-        //   nameRu: "Russian",
-        //   nameEn: "English"
-        // ),
         status: RequestStatus.fromJson(categoryItemJson['status']),
         image: Img.fromJson(categoryItemJson['image']),
       );
