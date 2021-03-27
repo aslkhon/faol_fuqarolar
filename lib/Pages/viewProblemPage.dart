@@ -300,7 +300,7 @@ class _ViewProblemPageState extends State<ViewProblemPage> {
                     width: MediaQuery.of(context).size.width * 0.875,
                     margin: EdgeInsets.symmetric(horizontal: (MediaQuery.of(context).size.width * 0.0625)),
                     padding: EdgeInsets.only(top: 12.0, bottom: 12.0),
-                    child: Text('Mahalla'),
+                    child: Text(MainPage.getMahalla(problem)),
                     decoration: BoxDecoration(
                       border: Border(
                         bottom: BorderSide(color: AppColors.grey, width: 0.5)

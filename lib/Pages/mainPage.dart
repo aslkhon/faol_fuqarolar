@@ -55,14 +55,10 @@ class MainPage extends StatefulWidget {
   }
 
   static getMahalla(RequestItem problem) {
-    if (problem.mahalla == null) {
-      return " ";
-    } else {
-      if (globals.currentLang == Languages.russian)
-        return problem.mahalla.nameRu;
-      else
-        return problem.mahalla.nameUz;
-    }
+    if (globals.currentLang == Languages.russian)
+      return problem.mahalla.nameRu;
+    else
+      return problem.mahalla.nameUz;
   }
 
   MainPage();
