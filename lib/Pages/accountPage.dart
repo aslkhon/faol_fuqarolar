@@ -116,8 +116,9 @@ class _AccountPageState extends State<AccountPage> {
                                     globals.currentLang['AccountContact'],
                                     style: TextStyle(
                                         color: AppColors.primary,
-                                        fontSize: 18.0
+                                        fontSize: 14.0
                                     ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                   GestureDetector(
                                     onTap: () async{
@@ -179,12 +180,16 @@ class _AccountPageState extends State<AccountPage> {
                                 },
                                 child: Row(
                                   children: [
-                                    Text(
-                                      globals.currentLang['AccountPrivacy'],
-                                      style: TextStyle(
-                                          color: AppColors.primary,
-                                          decoration: TextDecoration.underline,
-                                          fontSize: 18.0
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width * 0.75,
+                                      child: Text(
+                                        globals.currentLang['AccountPrivacy'],
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                            color: AppColors.primary,
+                                            decoration: TextDecoration.underline,
+                                            fontSize: 14.0
+                                        ),
                                       ),
                                     ),
                                     Padding(
@@ -212,7 +217,7 @@ class _AccountPageState extends State<AccountPage> {
                               width: MediaQuery.of(context).size.width * 0.875,
                               child: GestureDetector(
                                 onTap: () async{
-                                  var url = "https://faol-fuqarolar.uz/privacy.html";
+                                  var url = "https://faol-fuqarolar.uz/terms.html";
                                   if (await canLaunch(url)) {
                                     await launch(url);
                                   } else {
@@ -221,12 +226,15 @@ class _AccountPageState extends State<AccountPage> {
                                 },
                                 child: Row(
                                   children: [
-                                    Text(
-                                      globals.currentLang['AccountTerms'],
-                                      style: TextStyle(
-                                          color: AppColors.primary,
-                                          decoration: TextDecoration.underline,
-                                          fontSize: 18.0
+                                    SizedBox(
+                                    width: MediaQuery.of(context).size.width * 0.75,
+                                    child: Text(
+                                        globals.currentLang['AccountTerms'],
+                                        style: TextStyle(
+                                            color: AppColors.primary,
+                                            decoration: TextDecoration.underline,
+                                            fontSize: 14.0
+                                        ),
                                       ),
                                     ),
                                     Padding(

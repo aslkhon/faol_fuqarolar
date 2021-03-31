@@ -82,13 +82,17 @@ class _MainPageState extends State<MainPage> {
   Future getImage() async {
     final pickedFile = await picker.getImage(
         source: ImageSource.camera,
-       maxHeight: 1080,
-      maxWidth: 1080,
-      imageQuality: 80
-    );
+        maxHeight: 1080,
+        maxWidth: 1080,
+        imageQuality: 80);
 
     if (pickedFile != null)
-      Navigator.push(context, MaterialPageRoute(builder: (context) => AddProblemPage(imagePath: pickedFile.path))).then((value) => setState(() {}));
+      Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      AddProblemPage(imagePath: pickedFile.path)))
+          .then((value) => setState(() {}));
     else
       print('No image');
   }
@@ -153,13 +157,15 @@ class _MainPageState extends State<MainPage> {
     final token = preferences.getString('token');
     print(token);
     if (phoneNumber == null) {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => IntroPage()));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => IntroPage()));
     }
     var url;
     if (status == 0) {
       url = 'https://api.faol-fuqarolar.uz/api/requests?phone=$phoneNumber';
     } else {
-      url = 'https://api.faol-fuqarolar.uz/api/requests?phone=$phoneNumber&statusId=$status';
+      url =
+          'https://api.faol-fuqarolar.uz/api/requests?phone=$phoneNumber&statusId=$status';
     }
     print(token);
     try {
@@ -170,7 +176,8 @@ class _MainPageState extends State<MainPage> {
       }).then((value) {
         if (value.statusCode == 401) {
           Auth().logOut().then((_) {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => IntroPage()));
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => IntroPage()));
           });
         } else {
           final extractedData = json.decode(value.body);
@@ -179,16 +186,14 @@ class _MainPageState extends State<MainPage> {
             return null;
           }
           problems = List<RequestItem>.from(
-              extractedData.map((i) => RequestItem.fromJson(i))
-          );
+              extractedData.map((i) => RequestItem.fromJson(i)));
           if (mounted) {
             setState(() {
               isLoading = false;
             });
           }
         }
-      }
-      );
+      });
     } catch (error) {
       print(error);
     }
@@ -198,7 +203,7 @@ class _MainPageState extends State<MainPage> {
 
   TextStyle getTextStyle(ListStatus listStatus) {
     Color color;
-    switch(listStatus) {
+    switch (listStatus) {
       case ListStatus.all:
         color = AppColors.primary;
         break;
@@ -247,28 +252,34 @@ class _MainPageState extends State<MainPage> {
     setState(() {
       _checkVersion = true;
     });
-    final NewVersion newVersion = NewVersion(context: context);
-    VersionStatus versionStatus = await newVersion.getVersionStatus();
-    if (versionStatus != null && versionStatus.canUpdate) {
+    try {
+      final NewVersion newVersion = NewVersion(context: context);
+      VersionStatus versionStatus = await newVersion.getVersionStatus();
+      if (versionStatus != null && versionStatus.canUpdate) {
+        setState(() {
+          _checkVersion = false;
+        });
+        await confirmDialog(
+          context: context,
+          title: globals.currentLang['PopupTitle'],
+          body: Text(
+            globals.currentLang['PopupBody'],
+            style: TextStyle(color: Theme.of(context).textTheme.button.color),
+          ),
+          acceptButton: globals.currentLang['PopupButton'],
+          cancelButton: globals.currentLang['PopupCancel'],
+        ).then((ConfirmAction res) async {
+          if (res == ConfirmAction.CONFIRM &&
+              await canLaunch(versionStatus.appStoreLink)) {
+            await launch(versionStatus.appStoreLink, forceWebView: false);
+          }
+        });
+      }
+    } catch (error) {
       setState(() {
         _checkVersion = false;
       });
-      await confirmDialog(
-        context: context,
-        title: globals.currentLang['PopupTitle'],
-        body: Text(
-          globals.currentLang['PopupBody'],
-          style:
-          TextStyle(color: Theme.of(context).textTheme.button.color),
-        ),
-        acceptButton: globals.currentLang['PopupButton'],
-        cancelButton: globals.currentLang['PopupCancel'],)
-          .then((ConfirmAction res) async {
-        if (res == ConfirmAction.CONFIRM &&
-            await canLaunch(versionStatus.appStoreLink)) {
-          await launch(versionStatus.appStoreLink, forceWebView: false);
-        }
-      });
+      throw error;
     }
     setState(() {
       _checkVersion = false;
@@ -281,11 +292,11 @@ class _MainPageState extends State<MainPage> {
   }
 
   Future<ConfirmAction> confirmDialog(
-      {BuildContext context,
-        String title,
-        Widget body,
-        String acceptButton,
-        String cancelButton}) =>
+          {BuildContext context,
+          String title,
+          Widget body,
+          String acceptButton,
+          String cancelButton}) =>
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -297,7 +308,7 @@ class _MainPageState extends State<MainPage> {
               Text(
                 title,
                 style:
-                TextStyle(color: Theme.of(context).textTheme.button.color),
+                    TextStyle(color: Theme.of(context).textTheme.button.color),
               )
             ],
           ),
@@ -313,7 +324,7 @@ class _MainPageState extends State<MainPage> {
               child: Text(
                 acceptButton,
                 style:
-                TextStyle(color: Theme.of(context).textTheme.button.color),
+                    TextStyle(color: Theme.of(context).textTheme.button.color),
               ),
               onPressed: () {
                 Navigator.of(context, rootNavigator: true)
@@ -325,7 +336,7 @@ class _MainPageState extends State<MainPage> {
               child: Text(
                 cancelButton,
                 style:
-                TextStyle(color: Theme.of(context).textTheme.button.color),
+                    TextStyle(color: Theme.of(context).textTheme.button.color),
               ),
               onPressed: () {
                 Navigator.of(context, rootNavigator: true)
@@ -339,34 +350,34 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-        onWillPop: () {
-          DateTime now = DateTime.now();
-          if (currentBackPressTime == null ||
-              now.difference(currentBackPressTime) > Duration(seconds: 2)) {
-            FlutterToast(context).showToast(
-              child: Container(
-                padding: EdgeInsets.all(10.0),
-                decoration: BoxDecoration(
-                  color: Colors.black45,
-                  borderRadius: BorderRadius.horizontal(
-                    left: const Radius.circular(10.0),
-                    right: const Radius.circular(10.0),
-                  ),
-                ),
-                child: Text(
-                  globals.currentLang['Exit'],
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
+      onWillPop: () {
+        DateTime now = DateTime.now();
+        if (currentBackPressTime == null ||
+            now.difference(currentBackPressTime) > Duration(seconds: 2)) {
+          FlutterToast(context).showToast(
+            child: Container(
+              padding: EdgeInsets.all(10.0),
+              decoration: BoxDecoration(
+                color: Colors.black45,
+                borderRadius: BorderRadius.horizontal(
+                  left: const Radius.circular(10.0),
+                  right: const Radius.circular(10.0),
                 ),
               ),
-              toastDuration: Duration(seconds: 2),
-            );
-            currentBackPressTime = now;
-            return Future.value(false);
-          }
-          return Future.value(true);
-        },
+              child: Text(
+                globals.currentLang['Exit'],
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            toastDuration: Duration(seconds: 2),
+          );
+          currentBackPressTime = now;
+          return Future.value(false);
+        }
+        return Future.value(true);
+      },
       child: Scaffold(
           resizeToAvoidBottomInset: false,
           backgroundColor: AppColors.background,
@@ -379,8 +390,8 @@ class _MainPageState extends State<MainPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                        child: SvgPicture.asset('assets/images/logo_primary.svg'),
-                      width: MediaQuery.of(context).size.width * 0.6,
+                      child: SvgPicture.asset('assets/images/logo_primary.svg'),
+                      width: MediaQuery.of(context).size.width * 0.56,
                     ),
                     Row(
                       children: [
@@ -389,7 +400,11 @@ class _MainPageState extends State<MainPage> {
                           icon: FaIcon(FontAwesomeIcons.userCircle),
                           iconSize: 32.0,
                           onPressed: () => {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => AccountPage())).then((value) => setState(() {}))
+                            Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => AccountPage()))
+                                .then((value) => setState(() {}))
                           },
                         ),
                         IconButton(
@@ -419,10 +434,8 @@ class _MainPageState extends State<MainPage> {
                       BoxShadow(
                           color: AppColors.shadow,
                           blurRadius: 6,
-                          offset: Offset(0, 3)
-                      )
-                    ]
-                ),
+                          offset: Offset(0, 3))
+                    ]),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton(
                       value: _value,
@@ -430,25 +443,27 @@ class _MainPageState extends State<MainPage> {
                       dropdownColor: AppColors.white,
                       items: [
                         DropdownMenuItem(
-                          child: Text(globals.currentLang['StatusOne'], style: getTextStyle(ListStatus.all)),
+                          child: Text(globals.currentLang['StatusOne'],
+                              style: getTextStyle(ListStatus.all)),
                           value: ListStatus.all,
                         ),
                         DropdownMenuItem(
-                          child: Text(globals.currentLang['StatusTwo'], style: getTextStyle(ListStatus.sent)),
+                          child: Text(globals.currentLang['StatusTwo'],
+                              style: getTextStyle(ListStatus.sent)),
                           value: ListStatus.sent,
                         ),
                         DropdownMenuItem(
-                            child: Text(globals.currentLang['StatusThree'], style: getTextStyle(ListStatus.process)),
-                            value: ListStatus.process
-                        ),
+                            child: Text(globals.currentLang['StatusThree'],
+                                style: getTextStyle(ListStatus.process)),
+                            value: ListStatus.process),
                         DropdownMenuItem(
-                            child: Text(globals.currentLang['StatusFour'], style: getTextStyle(ListStatus.success)),
-                            value: ListStatus.success
-                        ),
+                            child: Text(globals.currentLang['StatusFour'],
+                                style: getTextStyle(ListStatus.success)),
+                            value: ListStatus.success),
                         DropdownMenuItem(
-                            child: Text(globals.currentLang['StatusFive'], style: getTextStyle(ListStatus.reject)),
-                            value: ListStatus.reject
-                        )
+                            child: Text(globals.currentLang['StatusFive'],
+                                style: getTextStyle(ListStatus.reject)),
+                            value: ListStatus.reject)
                       ],
                       onChanged: (value) {
                         setState(() {
@@ -461,124 +476,211 @@ class _MainPageState extends State<MainPage> {
               ),
               Container(
                 height: MediaQuery.of(context).size.height - 250.0,
-                child: (isLoading) ? Center(
-                  child: CircularProgressIndicator(
-                    backgroundColor: AppColors.primary,
-                  ),
-                ) : Container(
-                  child:
-                  problems.isEmpty ? Center(child: Text(globals.currentLang['NoMuammo'], style: TextStyle(
-                    color: AppColors.grey, fontSize: 18.0
-                  ),)) :
-                  ListView.builder(
-                    padding: EdgeInsets.only(bottom: 64.0),
-                    physics: BouncingScrollPhysics(),
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                    itemCount: problems.length,
-                    itemBuilder: (context, index) {
-                      final problem = problems[index];
-                      return Padding(
-                        padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.0625, vertical: 8.0),
-                        child: Container(
-                          height: 96.0,
-                          decoration: BoxDecoration(
-                            color: AppColors.white,
-                            borderRadius: BorderRadius.circular(8.0),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: AppColors.shadow,
-                                  blurRadius: 6 ,
-                                  offset: Offset(0, 3)
-                              )
-                            ],
-                          ),
-                          child: RawMaterialButton(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8.0)
-                            ),
-                            onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => ViewProblemPage(problem: problem))).then((value) => setState(() {}));
-                            },
-                            child: Row(
-                              children: [
-                                Container(
-                                  height: 96.0,
-                                  width: 8.0,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.only(topLeft: Radius.circular(8.0), bottomLeft: Radius.circular(8.0)),
-                                      color: MainPage.getColor(problem.statusId)
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 12.0, top: 12.0, right: 20.0),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        width: MediaQuery.of(context).size.width * 0.75,
-                                        child: Text(
-                                          problem.description,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18.0
-                                          ),
-                                        ),
-                                      ),
-                                      Container(
-                                        width: MediaQuery.of(context).size.width * 0.75,
-                                        child: Text(
-                                          MainPage.getMahalla(problem),
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                              fontSize: 12.0
-                                          ),
-                                        ),
-                                      ),
-                                      Row(
-                                        children: [
-                                          Container(
-                                            margin: EdgeInsets.only(top: 6.0),
-                                            padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0),
-                                            decoration: BoxDecoration(
-                                                color: AppColors.chips,
-                                                borderRadius: BorderRadius.circular(16.0)
-                                            ),
-                                            child: Row(
-                                              children: [
-                                                Padding(
-                                                  padding: const EdgeInsets.only(right: 8.0),
-                                                  child: FaIcon(FontAwesomeIcons.clock, size: 12.0),
-                                                ),
-                                                Text(DateFormat("d MMMM HH:mm").format(DateTime.parse(problem.createdAt).toLocal()),
-                                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.0))
-                                              ],
-                                            ),
-                                          ),
-                                          Container(
-                                            margin: EdgeInsets.only(top: 6.0, left: 8.0),
-                                            padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 8.0),
-                                            decoration: BoxDecoration(
-                                                color: AppColors.chips,
-                                                borderRadius: BorderRadius.circular(16.0)
-                                            ),
-                                            child: Text(MainPage.getCategory(problem), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.0)),
-                                          )
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
+                child: (isLoading)
+                    ? Center(
+                        child: CircularProgressIndicator(
+                          backgroundColor: AppColors.primary,
                         ),
-                      );
-                    },
-                  ),
-                ),
+                      )
+                    : Container(
+                        child: problems.isEmpty
+                            ? Center(
+                                child: Text(
+                                globals.currentLang['NoMuammo'],
+                                style: TextStyle(
+                                    color: AppColors.grey, fontSize: 18.0),
+                              ))
+                            : ListView.builder(
+                                padding: EdgeInsets.only(bottom: 64.0),
+                                physics: BouncingScrollPhysics(),
+                                scrollDirection: Axis.vertical,
+                                shrinkWrap: true,
+                                itemCount: problems.length,
+                                itemBuilder: (context, index) {
+                                  final problem = problems[index];
+                                  return Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal:
+                                            MediaQuery.of(context).size.width *
+                                                0.0625,
+                                        vertical: 8.0),
+                                    child: Container(
+                                      height: 96.0,
+                                      decoration: BoxDecoration(
+                                        color: AppColors.white,
+                                        borderRadius:
+                                            BorderRadius.circular(8.0),
+                                        boxShadow: [
+                                          BoxShadow(
+                                              color: AppColors.shadow,
+                                              blurRadius: 6,
+                                              offset: Offset(0, 3))
+                                        ],
+                                      ),
+                                      child: RawMaterialButton(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8.0)),
+                                        onPressed: () {
+                                          Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          ViewProblemPage(
+                                                              problem:
+                                                                  problem)))
+                                              .then((value) => setState(() {}));
+                                        },
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              height: 96.0,
+                                              width: 8.0,
+                                              decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                  8.0),
+                                                          bottomLeft:
+                                                              Radius.circular(
+                                                                  8.0)),
+                                                  color: MainPage.getColor(
+                                                      problem.statusId)),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                  left: 12.0,
+                                                  top: 12.0,
+                                                  right: 20.0),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.75,
+                                                    child: Text(
+                                                      problem.description,
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 18.0),
+                                                    ),
+                                                  ),
+                                                  Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.75,
+                                                    child: Text(
+                                                      MainPage.getMahalla(
+                                                          problem),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                          fontSize: 12.0),
+                                                    ),
+                                                  ),
+                                                  Container(
+                                                    width: MediaQuery.of(context).size.width * 0.75,
+                                                    child: SingleChildScrollView(
+                                                      physics: BouncingScrollPhysics(),
+                                                      scrollDirection: Axis.horizontal,
+                                                      child: Row(
+                                                        children: [
+                                                          Container(
+                                                            margin: EdgeInsets.only(
+                                                                top: 6.0),
+                                                            padding: EdgeInsets
+                                                                .symmetric(
+                                                                    vertical: 2.0,
+                                                                    horizontal:
+                                                                        8.0),
+                                                            decoration: BoxDecoration(
+                                                                color:
+                                                                    AppColors.chips,
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            16.0)),
+                                                            child: Row(
+                                                              children: [
+                                                                Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                              .only(
+                                                                          right:
+                                                                              8.0),
+                                                                  child: FaIcon(
+                                                                      FontAwesomeIcons
+                                                                          .clock,
+                                                                      size: 12.0),
+                                                                ),
+                                                                Text(
+                                                                    DateFormat(
+                                                                            "d MMMM HH:mm")
+                                                                        .format(DateTime.parse(problem
+                                                                                .createdAt)
+                                                                            .toLocal()),
+                                                                    style: TextStyle(
+                                                                        fontWeight:
+                                                                            FontWeight
+                                                                                .bold,
+                                                                        fontSize:
+                                                                            12.0))
+                                                              ],
+                                                            ),
+                                                          ),
+                                                          Container(
+                                                            margin: EdgeInsets.only(
+                                                                top: 6.0,
+                                                                left: 8.0),
+                                                            padding: EdgeInsets
+                                                                .symmetric(
+                                                                    vertical: 2.0,
+                                                                    horizontal:
+                                                                        8.0),
+                                                            decoration: BoxDecoration(
+                                                                color:
+                                                                    AppColors.chips,
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            16.0)),
+                                                            child: Text(
+                                                                MainPage
+                                                                    .getCategory(
+                                                                        problem),
+                                                                style: TextStyle(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontSize:
+                                                                        12.0)),
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                      ),
               ),
             ],
           ),
@@ -593,30 +695,30 @@ class _MainPageState extends State<MainPage> {
                     BoxShadow(
                         color: AppColors.shadow,
                         blurRadius: 6,
-                        offset: Offset(0, 3)
-                    )
-                  ]
-              ),
+                        offset: Offset(0, 3))
+                  ]),
               child: MaterialButton(
                 color: AppColors.primary,
-                child: _checkVersion ? Center(child: CircularProgressIndicator(backgroundColor: AppColors.primary,),) : FaIcon(
-                  FontAwesomeIcons.camera,
-                  color: AppColors.white,
-                ),
+                child: _checkVersion
+                    ? Center(
+                        child: CircularProgressIndicator(
+                          backgroundColor: AppColors.primary,
+                        ),
+                      )
+                    : FaIcon(
+                        FontAwesomeIcons.camera,
+                        color: AppColors.white,
+                      ),
                 onPressed: () {
                   getImage();
                 },
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(32.0)
-                ),
+                    borderRadius: BorderRadius.circular(32.0)),
               ),
             ),
-          )
-      ),
+          )),
     );
   }
 }
 
-enum ListStatus {
-  all, sent, process, success, reject
-}
+enum ListStatus { all, sent, process, success, reject }

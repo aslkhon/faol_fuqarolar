@@ -21,7 +21,8 @@ class IntroPage extends StatefulWidget {
 enum ConfirmAction { CONFIRM, CANCEL }
 
 class _IntroPageState extends State<IntroPage> {
-  final linkStyle = TextStyle(decoration: TextDecoration.underline, fontWeight: FontWeight.bold);
+  final linkStyle = TextStyle(
+      decoration: TextDecoration.underline, fontWeight: FontWeight.bold);
   var introRussian, introUzbek;
 
   String getIntro(String lang) {
@@ -46,28 +47,34 @@ class _IntroPageState extends State<IntroPage> {
     setState(() {
       _checkVersion = true;
     });
-    final NewVersion newVersion = NewVersion(context: context);
-    VersionStatus versionStatus = await newVersion.getVersionStatus();
-    if (versionStatus != null && versionStatus.canUpdate) {
-      setState(() {
-        _checkVersion = false;
-      });
-      await confirmDialog(
+    try {
+      final NewVersion newVersion = NewVersion(context: context);
+      VersionStatus versionStatus = await newVersion.getVersionStatus();
+      if (versionStatus != null && versionStatus.canUpdate) {
+        setState(() {
+          _checkVersion = false;
+        });
+        await confirmDialog(
           context: context,
           title: globals.currentLang['PopupTitle'],
           body: Text(
             globals.currentLang['PopupBody'],
-            style:
-            TextStyle(color: Theme.of(context).textTheme.button.color),
+            style: TextStyle(color: Theme.of(context).textTheme.button.color),
           ),
           acceptButton: globals.currentLang['PopupButton'],
-          cancelButton: globals.currentLang['PopupCancel'],)
-          .then((ConfirmAction res) async {
-        if (res == ConfirmAction.CONFIRM &&
-            await canLaunch(versionStatus.appStoreLink)) {
-          await launch(versionStatus.appStoreLink, forceWebView: false);
-        }
+          cancelButton: globals.currentLang['PopupCancel'],
+        ).then((ConfirmAction res) async {
+          if (res == ConfirmAction.CONFIRM &&
+              await canLaunch(versionStatus.appStoreLink)) {
+            await launch(versionStatus.appStoreLink, forceWebView: false);
+          }
+        });
+      }
+    } catch (error) {
+      setState(() {
+        _checkVersion = false;
       });
+      throw error;
     }
     setState(() {
       _checkVersion = false;
@@ -75,11 +82,11 @@ class _IntroPageState extends State<IntroPage> {
   }
 
   Future<ConfirmAction> confirmDialog(
-      {BuildContext context,
-        String title,
-        Widget body,
-        String acceptButton,
-        String cancelButton}) =>
+          {BuildContext context,
+          String title,
+          Widget body,
+          String acceptButton,
+          String cancelButton}) =>
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -91,7 +98,7 @@ class _IntroPageState extends State<IntroPage> {
               Text(
                 title,
                 style:
-                TextStyle(color: Theme.of(context).textTheme.button.color),
+                    TextStyle(color: Theme.of(context).textTheme.button.color),
               )
             ],
           ),
@@ -107,7 +114,7 @@ class _IntroPageState extends State<IntroPage> {
               child: Text(
                 acceptButton,
                 style:
-                TextStyle(color: Theme.of(context).textTheme.button.color),
+                    TextStyle(color: Theme.of(context).textTheme.button.color),
               ),
               onPressed: () {
                 Navigator.of(context, rootNavigator: true)
@@ -119,7 +126,7 @@ class _IntroPageState extends State<IntroPage> {
               child: Text(
                 cancelButton,
                 style:
-                TextStyle(color: Theme.of(context).textTheme.button.color),
+                    TextStyle(color: Theme.of(context).textTheme.button.color),
               ),
               onPressed: () {
                 Navigator.of(context, rootNavigator: true)
@@ -196,65 +203,87 @@ class _IntroPageState extends State<IntroPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
-                        child: Text(getIntro('ru'), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0, color: AppColors.white)),
+                        padding: EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 0.0),
+                        child: Text(getIntro('ru'),
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18.0,
+                                color: AppColors.white)),
                       ),
-                      _checkVersion ? Center(child: CircularProgressIndicator(backgroundColor: AppColors.primary,)) : SvgPicture.asset('assets/images/logo_white.svg'),
+                      _checkVersion
+                          ? Center(
+                              child: CircularProgressIndicator(
+                              backgroundColor: AppColors.primary,
+                            ))
+                          : SvgPicture.asset('assets/images/logo_white.svg'),
                       Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
-                        child: Text(getIntro('uz'), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0, color: AppColors.white)),
+                        padding: EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 0.0),
+                        child: Text(getIntro('uz'),
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18.0,
+                                color: AppColors.white)),
                       )
                     ],
-                  )
-              ),
+                  )),
               Padding(
                 padding: const EdgeInsets.only(bottom: 16.0),
                 child: RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
-                      style: TextStyle(color: AppColors.white, fontSize: 14.0, fontFamily: 'Open Sans'),
+                      style: TextStyle(
+                          color: AppColors.white,
+                          fontSize: 14.0,
+                          fontFamily: 'Open Sans'),
                       children: [
                         TextSpan(text: globals.currentLang['IntroFirstLine']),
                         TextSpan(
                             text: globals.currentLang['IntroPrivacy'],
                             style: linkStyle,
-                            recognizer: TapGestureRecognizer()..onTap =  () async{
-                              var url = "https://faol-fuqarolar.uz/privacy.html";
-                              if (await canLaunch(url)) {
-                                await launch(url);
-                              } else {
-                                throw 'Could not launch $url';
-                              }
-                            }
-                        ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () async {
+                                var url =
+                                    "https://faol-fuqarolar.uz/privacy.html";
+                                if (await canLaunch(url)) {
+                                  await launch(url);
+                                } else {
+                                  throw 'Could not launch $url';
+                                }
+                              }),
                         TextSpan(text: globals.currentLang['IntroAnd']),
                         TextSpan(
                             text: globals.currentLang['IntroTerms'],
                             style: linkStyle,
-                            recognizer: TapGestureRecognizer()..onTap =  () async{
-                              var url = "https://faol-fuqarolar.uz/terms.html";
-                              if (await canLaunch(url)) {
-                                await launch(url);
-                              } else {
-                                throw 'Could not launch $url';
-                              }
-                            }
-                        ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () async {
+                                var url =
+                                    "https://faol-fuqarolar.uz/terms.html";
+                                if (await canLaunch(url)) {
+                                  await launch(url);
+                                } else {
+                                  throw 'Could not launch $url';
+                                }
+                              }),
                         TextSpan(text: globals.currentLang['IntroLastLine']),
-                      ]
-                  ),
+                      ]),
                 ),
               ),
               ApplicationButton(
                 onPressed: () => {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => PhonePage(step: MobileStep.number))).then((value) => setState(() {}))
+                  Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  PhonePage(step: MobileStep.number)))
+                      .then((value) => setState(() {}))
                 },
                 text: globals.currentLang['IntroButton'],
                 buttonStyle: AppButtonStyle.ButtonWhite,
               ),
             ],
-          )
-      ),
+          )),
     );
   }
 }

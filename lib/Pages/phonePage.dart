@@ -198,7 +198,10 @@ class _PhonePageState extends State<PhonePage> {
                         FaIcon(FontAwesomeIcons.exclamationCircle, color: AppColors.reject),
                         Padding(
                           padding: const EdgeInsets.only(left: 8.0),
-                          child: Text(globals.currentLang['NumberAlert']),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.5,
+                              child: FittedBox(child: Text(globals.currentLang['NumberAlert']), fit: BoxFit.fitWidth,)
+                          ),
                         )
                       ],
                     ),
@@ -255,54 +258,59 @@ class _PhonePageState extends State<PhonePage> {
       onWillPop: backward,
       child: Scaffold(
           backgroundColor: AppColors.background,
-          resizeToAvoidBottomInset: false,
-          body: Column(
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width * 0.875,
-                margin: EdgeInsets.only(top: 82.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    (step == MobileStep.number) ? Text('') : IconButton(
-                        icon: FaIcon(FontAwesomeIcons.arrowAltCircleLeft),
-                        color: AppColors.black,
-                        iconSize: 32.0,
-                        onPressed: backward
-                    ),
-                    IconButton(
-                      color: AppColors.black,
-                      icon: FaIcon(FontAwesomeIcons.globe),
-                      iconSize: 32.0,
-                      onPressed: () {
-                        setState(() {
-                          globals.changeLang();
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              SingleChildScrollView(
-                child: Container(
-                    height: MediaQuery.of(context).size.height - offset,
-                    alignment: Alignment.center,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+          body: SingleChildScrollView(
+            physics: BouncingScrollPhysics(),
+            child: Container(
+              height: MediaQuery.of(context).size.height,
+              child: Column(
+                children: [
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.875,
+                    margin: EdgeInsets.only(top: 82.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SvgPicture.asset('assets/images/registration_logo.svg'),
-                        Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 24.0),
-                            child: chooseWords()
+                        (step == MobileStep.number) ? Text('') : IconButton(
+                            icon: FaIcon(FontAwesomeIcons.arrowAltCircleLeft),
+                            color: AppColors.black,
+                            iconSize: 32.0,
+                            onPressed: backward
                         ),
-                        Container(
-                          child: chooseInput(controller),
-                        )
+                        IconButton(
+                          color: AppColors.black,
+                          icon: FaIcon(FontAwesomeIcons.globe),
+                          iconSize: 32.0,
+                          onPressed: () {
+                            setState(() {
+                              globals.changeLang();
+                            });
+                          },
+                        ),
                       ],
-                    )
-                ),
+                    ),
+                  ),
+                  SingleChildScrollView(
+                    child: Container(
+                        height: MediaQuery.of(context).size.height - offset,
+                        alignment: Alignment.center,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SvgPicture.asset('assets/images/registration_logo.svg'),
+                            Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 24.0),
+                                child: chooseWords()
+                            ),
+                            Container(
+                              child: chooseInput(controller),
+                            )
+                          ],
+                        )
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           )
       ),
     );

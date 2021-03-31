@@ -115,7 +115,7 @@ class AppPasswordInput extends StatelessWidget {
               width: 34,
             ),
             Container(
-              width: 200.0,
+              width: 180.0,
               child: TextFormField(
                   enabled: enabled,
                   maxLength: 6,
