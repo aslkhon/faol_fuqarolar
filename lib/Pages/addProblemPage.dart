@@ -375,6 +375,7 @@ class _AddProblemPageState extends State<AddProblemPage> {
                           searchHint: globals.currentLang['AddProblemMahalla'],
                           onChanged: (value) {
                             setState(() {
+                              isEmptyLine = false;
                               _mahalla = value;
                             });
                           },
@@ -453,12 +454,12 @@ class _AddProblemPageState extends State<AddProblemPage> {
                     isRejected = true;
                   });
                 }
-                if (_value == null) {
+                if (_value == null || _mahalla == null) {
                   setState(() {
                     isEmptyLine = true;
                   });
                 }
-                if (controller.text.isNotEmpty && _value != null && locationString.isNotEmpty)
+                if (controller.text.isNotEmpty && _value != null && _mahalla != null && locationString.isNotEmpty)
                   _send();
               },
               text: globals.currentLang['IntroButton'],
