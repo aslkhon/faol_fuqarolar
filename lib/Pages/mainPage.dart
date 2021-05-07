@@ -8,6 +8,7 @@ import 'package:faol_fuqarolar/Providers/auth.dart';
 import 'package:faol_fuqarolar/Providers/request.dart';
 import 'package:faol_fuqarolar/languages.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -716,9 +717,11 @@ class _MainPageState extends State<MainPage> {
                     borderRadius: BorderRadius.circular(32.0)),
               ),
             ),
-          )),
+          )
+      ),
     );
   }
 }
+
 
 enum ListStatus { all, sent, process, success, reject }
